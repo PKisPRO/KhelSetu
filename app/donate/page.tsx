@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, CheckCircle, ArrowRight, School, Truck, ChevronDown, AlertCircle } from 'lucide-react';
+import { Upload, CheckCircle, ArrowRight, School, Truck, ChevronDown, AlertCircle, X, ImageIcon } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionHeading from '@/components/SectionHeading';
-import { submitDonation } from '@/lib/donations';
+import { submitDonation, uploadPhoto } from '@/lib/donations';
 
 const sports         = ['Cricket','Football','Badminton','Basketball','Tennis','Table Tennis','Volleyball','Hockey','Athletics','Swimming','Boxing','Kabaddi','Other'];
 const conditions     = ['New','Like New','Good','Fair'];
@@ -32,27 +32,60 @@ const initial: FormState = {
 };
 
 export default function DonatePage() {
-  const [form, setForm]      = useState<FormState>(initial);
+  const [form, setForm]       = useState<FormState>(initial);
+  const [photo, setPhoto]     = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [submitted, setSubmit] = useState(false);
   const [loading, setLoading]  = useState(false);
   const [error, setError]      = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const set = (k: keyof FormState) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
       setForm(prev => ({ ...prev, [k]: e.target.value }));
 
+  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Photo must be under 10MB.');
+      return;
+    }
+    setPhoto(file);
+    setPreview(URL.createObjectURL(file));
+    setError(null);
+  };
+
+  const removePhoto = () => {
+    setPhoto(null);
+    setPreview(null);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Client-side required-field guard
     if (!form.name.trim() || !form.phone.trim() || !form.equipmentType || !form.method) {
-      setError('Please fill in all required fields.');
+      setError('Please fill in all required fields (Name, Phone, Equipment Type, Donation Method).');
       return;
     }
 
     setLoading(true);
 
+    // Upload photo first (optional)
+    let photoUrl: string | undefined;
+    if (photo) {
+      const { url, error: uploadErr } = await uploadPhoto(photo);
+      if (uploadErr) {
+        setError(`Photo upload failed: ${uploadErr}`);
+        setLoading(false);
+        return;
+      }
+      photoUrl = url ?? undefined;
+    }
+
+    // Submit donation record
     const { error: submitError } = await submitDonation({
       name:            form.name.trim(),
       phone:           form.phone.trim(),
@@ -63,12 +96,13 @@ export default function DonatePage() {
       description:     form.notes.trim(),
       location:        form.location.trim(),
       donation_method: form.method,
+      photo_url:       photoUrl,
     });
 
     setLoading(false);
 
     if (submitError) {
-      setError('Something went wrong. Please try again or email us at khelsetu177@gmail.com.');
+      setError(`Submission failed: ${submitError}`);
       return;
     }
 
@@ -107,7 +141,7 @@ export default function DonatePage() {
           <div className="max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
             <AnimatePresence mode="wait">
 
-              {/* ── SUCCESS ── */}
+              {/* SUCCESS */}
               {submitted ? (
                 <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                   className="glass-card p-12 text-center">
@@ -119,17 +153,18 @@ export default function DonatePage() {
                   <p className="text-gray-500 mb-6">
                     Thank you, {form.name || 'donor'}! We will contact you soon to coordinate your donation.
                   </p>
-                  <button onClick={() => { setForm(initial); setSubmit(false); }} className="btn-primary text-sm px-8 py-3">
+                  <button onClick={() => { setForm(initial); setPhoto(null); setPreview(null); setSubmit(false); }}
+                    className="btn-primary text-sm px-8 py-3">
                     Submit Another
                   </button>
                 </motion.div>
 
               ) : (
 
-                /* ── FORM ── */
+                /* FORM */
                 <motion.form key="form" onSubmit={handleSubmit} className="glass-card p-8 sm:p-10 space-y-6">
 
-                  {/* Section — Your Details */}
+                  {/* Your Details */}
                   <div>
                     <h2 className="text-2xl font-bold text-[#0F1F3D] mb-1">Your Details</h2>
                     <p className="text-gray-400 text-sm">We&apos;ll use this to coordinate the donation.</p>
@@ -153,7 +188,7 @@ export default function DonatePage() {
 
                   <div className="gradient-divider" />
 
-                  {/* Section — Equipment Details */}
+                  {/* Equipment Details */}
                   <div>
                     <h3 className="text-lg font-bold text-[#0F1F3D] mb-1">Equipment Details</h3>
                     <p className="text-gray-400 text-sm">Tell us about what you&apos;re donating.</p>
@@ -196,14 +231,47 @@ export default function DonatePage() {
                     </div>
                   </div>
 
-                  {/* Photo upload placeholder */}
+                  {/* Photo upload — real */}
                   <div>
-                    <label className="block text-gray-500 text-xs font-semibold uppercase tracking-wide mb-2">Photos (optional)</label>
-                    <div className="border border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50">
-                      <Upload size={24} className="text-gray-300 mx-auto mb-3" />
-                      <p className="text-gray-400 text-sm">Photo upload coming soon</p>
-                      <p className="text-gray-300 text-xs mt-1">PNG, JPG — up to 10MB each</p>
-                    </div>
+                    <label className="block text-gray-500 text-xs font-semibold uppercase tracking-wide mb-2">
+                      Photo (optional)
+                    </label>
+
+                    {preview ? (
+                      /* Preview */
+                      <div className="relative rounded-xl overflow-hidden border border-gray-200">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={preview} alt="Equipment preview"
+                          className="w-full h-52 object-cover" />
+                        <button type="button" onClick={removePhoto}
+                          className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-50 transition-colors">
+                          <X size={15} className="text-gray-500" />
+                        </button>
+                        <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 flex items-center gap-2">
+                          <ImageIcon size={13} className="text-[#1B3A6B]" />
+                          <span className="text-gray-700 text-xs font-medium truncate max-w-[180px]">{photo?.name}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Drop zone */
+                      <motion.div
+                        whileHover={{ borderColor: 'rgba(27,58,107,0.4)' }}
+                        onClick={() => fileRef.current?.click()}
+                        className="border border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer transition-colors hover:bg-gray-50"
+                      >
+                        <Upload size={24} className="text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500 text-sm font-medium">Click to upload a photo</p>
+                        <p className="text-gray-300 text-xs mt-1">PNG or JPG — up to 10MB</p>
+                      </motion.div>
+                    )}
+
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={handlePhoto}
+                      className="hidden"
+                    />
                   </div>
 
                   <div>
@@ -213,14 +281,16 @@ export default function DonatePage() {
 
                   <div className="gradient-divider" />
 
-                  {/* Section — Donation Method */}
+                  {/* Donation Method */}
                   <div>
                     <h3 className="text-lg font-bold text-[#0F1F3D] mb-1">How Will You Donate? *</h3>
                     <p className="text-gray-400 text-sm mb-4">Choose what works best for you.</p>
                     <div className="grid sm:grid-cols-2 gap-4">
                       {[
-                        { val: 'school' as Method, icon: School, title: 'Drop Off at School',  desc: 'Bring your equipment to a designated KhelSetu collection point at your school or a nearby drop-off location.' },
-                        { val: 'porter' as Method, icon: Truck,  title: 'Send via Porter',     desc: 'We\'ll share a Porter pickup address. You book the pickup at your convenience.' },
+                        { val: 'school' as Method, icon: School, title: 'Drop Off at School',
+                          desc: 'Bring your equipment to a designated KhelSetu collection point at your school or a nearby drop-off location.' },
+                        { val: 'porter' as Method, icon: Truck, title: 'Send via Porter',
+                          desc: "We'll share a Porter pickup address. You book the pickup at your convenience." },
                       ].map(opt => (
                         <motion.label key={opt.val} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                           className={`flex gap-4 p-5 rounded-xl border cursor-pointer transition-all ${
@@ -251,7 +321,7 @@ export default function DonatePage() {
                       rows={3} className="input-field resize-none" />
                   </div>
 
-                  {/* Error message */}
+                  {/* Error */}
                   {error && (
                     <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
                       className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
@@ -267,7 +337,7 @@ export default function DonatePage() {
                       <>
                         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                           className="w-5 h-5 rounded-full border-2 border-white/40 border-t-white" />
-                        Submitting…
+                        {photo ? 'Uploading photo…' : 'Submitting…'}
                       </>
                     ) : (
                       <>Submit Donation <ArrowRight size={18} /></>
