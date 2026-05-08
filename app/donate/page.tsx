@@ -73,15 +73,10 @@ export default function DonatePage() {
 
     setLoading(true);
 
-    // Upload photo first (optional)
+    // Upload photo — optional, silently skip if bucket not set up yet
     let photoUrl: string | undefined;
     if (photo) {
-      const { url, error: uploadErr } = await uploadPhoto(photo);
-      if (uploadErr) {
-        setError(`Photo upload failed: ${uploadErr}`);
-        setLoading(false);
-        return;
-      }
+      const { url } = await uploadPhoto(photo);
       photoUrl = url ?? undefined;
     }
 
