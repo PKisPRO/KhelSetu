@@ -33,7 +33,6 @@ export default function AdminPage() {
   const [loading, setLoading]       = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [selected, setSelected]     = useState<Donation | null>(null);
-  const [activeTab, setActiveTab]   = useState<'donations' | 'overview'>('donations');
 
   const fetchDonations = useCallback(async () => {
     setLoading(true);
@@ -147,32 +146,17 @@ export default function AdminPage() {
                   ))}
                 </div>
 
-                {/* Tabs */}
-                <div className="flex gap-2 mb-6">
-                  {(['donations', 'overview'] as const).map(tab => (
-                    <button key={tab} onClick={() => setActiveTab(tab)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
-                        activeTab === tab
-                          ? 'bg-[#1B3A6B]/8 text-[#1B3A6B] border border-[#1B3A6B]/20'
-                          : 'text-gray-500 hover:text-gray-800 bg-white border border-gray-200'
-                      }`}>
-                      {tab === 'donations' ? `Donations (${donations.length})` : 'Overview'}
-                    </button>
-                  ))}
-                </div>
+                {/* Donations */}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
-                {/* Donations tab */}
-                {activeTab === 'donations' && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  {/* Fetch error */}
+                  {fetchError && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm flex items-center gap-2">
+                      <Shield size={14} /> {fetchError} — run: <code className="bg-red-100 px-1 rounded">create policy &quot;Allow admin reads&quot; on donations for select to anon using (true);</code>
+                    </div>
+                  )}
 
-                    {/* Fetch error */}
-                    {fetchError && (
-                      <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm flex items-center gap-2">
-                        <Shield size={14} /> {fetchError} — make sure you have a SELECT policy on the donations table.
-                      </div>
-                    )}
-
-                    <div className="grid lg:grid-cols-3 gap-6">
+                  <div className="grid lg:grid-cols-3 gap-6">
 
                       {/* Table */}
                       <div className="lg:col-span-2 glass-card overflow-hidden">
@@ -300,16 +284,7 @@ export default function AdminPage() {
                         )}
                       </div>
                     </div>
-                  </motion.div>
-                )}
-
-                {/* Overview tab */}
-                {activeTab === 'overview' && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card p-8 text-center">
-                    <Package size={32} className="text-gray-200 mx-auto mb-3" />
-                    <p className="text-gray-500 text-sm">Switch to the Donations tab to view all submissions.</p>
-                  </motion.div>
-                )}
+                </motion.div>
 
               </div>
             </motion.div>
