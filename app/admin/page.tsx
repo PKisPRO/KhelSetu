@@ -1,96 +1,139 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, CheckCircle, XCircle, Eye, LogOut, Package, Users, BarChart3, Shield } from 'lucide-react';
-import { equipmentData } from '@/data/equipment';
+import { Lock, LogOut, Package, Users, Clock, RefreshCw, Trash2, Eye, Shield, Phone, Mail, MapPin, ImageIcon } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import Logo from '@/components/Logo';
+import { supabase } from '@/lib/supabase';
 
 const ADMIN_PASS = 'khelsetu2024';
 
+interface Donation {
+  id:              string;
+  name:            string;
+  phone:           string;
+  email:           string;
+  equipment_type:  string;
+  sport:           string;
+  condition:       string;
+  description:     string;
+  location:        string;
+  donation_method: string;
+  photo_url:       string | null;
+  created_at:      string;
+}
+
 export default function AdminPage() {
-  const [password, setPassword]   = useState('');
-  const [loggedIn, setLoggedIn]   = useState(false);
-  const [error, setError]         = useState('');
-  const [activeTab, setActiveTab] = useState<'equipment' | 'overview'>('overview');
-  const [items, setItems]         = useState(equipmentData.map(e => ({ ...e, approved: true })));
+  const [password, setPassword] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [loginError, setLoginError] = useState('');
+
+  const [donations, setDonations]   = useState<Donation[]>([]);
+  const [loading, setLoading]       = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [selected, setSelected]     = useState<Donation | null>(null);
+  const [activeTab, setActiveTab]   = useState<'donations' | 'overview'>('donations');
+
+  const fetchDonations = useCallback(async () => {
+    setLoading(true);
+    setFetchError(null);
+    const { data, error } = await supabase
+      .from('donations')
+      .select('*')
+      .order('created_at', { ascending: false });
+    setLoading(false);
+    if (error) { setFetchError(error.message); return; }
+    setDonations(data ?? []);
+  }, []);
+
+  useEffect(() => {
+    if (loggedIn) fetchDonations();
+  }, [loggedIn, fetchDonations]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASS) { setLoggedIn(true); setError(''); }
-    else setError('Incorrect password. (Hint: use Supabase Auth in production)');
+    if (password === ADMIN_PASS) { setLoggedIn(true); setLoginError(''); }
+    else setLoginError('Incorrect password.');
   };
 
-  const toggleApproval = (id: string) => {
-    setItems(prev => prev.map(e => e.id === id ? { ...e, approved: !e.approved } : e));
+  const deleteDonation = async (id: string) => {
+    if (!confirm('Delete this submission?')) return;
+    await supabase.from('donations').delete().eq('id', id);
+    setDonations(prev => prev.filter(d => d.id !== id));
+    if (selected?.id === id) setSelected(null);
   };
 
   const stats = [
-    { icon: Package,     label: 'Total Listings',  value: items.length,                                              color: 'from-[#1B3A6B] to-[#2F5FA8]' },
-    { icon: CheckCircle, label: 'Approved',         value: items.filter(e => e.approved).length,                     color: 'from-[#2D9944] to-[#3DBB5A]' },
-    { icon: XCircle,     label: 'Pending Review',   value: items.filter(e => !e.approved).length,                    color: 'from-amber-500 to-amber-400' },
-    { icon: Users,       label: 'Available',        value: items.filter(e => e.availability === 'Available').length,  color: 'from-violet-500 to-violet-400' },
+    { icon: Package, label: 'Total Submissions', value: donations.length,                                                   color: 'from-[#1B3A6B] to-[#2F5FA8]' },
+    { icon: Clock,   label: 'This Week',          value: donations.filter(d => {
+        const week = new Date(); week.setDate(week.getDate() - 7);
+        return new Date(d.created_at) > week;
+      }).length,                                                                                                              color: 'from-[#2D9944] to-[#3DBB5A]' },
+    { icon: Users,   label: 'Drop Off at School', value: donations.filter(d => d.donation_method === 'school').length,      color: 'from-amber-500 to-amber-400' },
+    { icon: Package, label: 'Via Porter',          value: donations.filter(d => d.donation_method === 'porter').length,     color: 'from-violet-500 to-violet-400' },
   ];
 
   return (
     <PageTransition>
       <div className="overflow-hidden min-h-screen bg-[#F4F8FF]">
         <AnimatePresence mode="wait">
+
+          {/* ── LOGIN ── */}
           {!loggedIn ? (
             <motion.div key="login" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
               <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ duration: 0.4 }}
                 className="glass-card p-10 w-full max-w-md">
                 <div className="text-center mb-8">
-                  <div className="flex justify-center mb-5">
-                    <Logo height={60} />
-                  </div>
+                  <div className="flex justify-center mb-5"><Logo height={60} /></div>
                   <h1 className="text-2xl font-bold text-[#0F1F3D]">Admin Panel</h1>
                   <p className="text-gray-400 text-sm mt-1">KhelSetu Internal Dashboard</p>
                 </div>
-
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-3">
-                  <Lock size={15} className="text-amber-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-gray-500 text-xs leading-relaxed">
-                    <span className="text-amber-600 font-medium">Dev note:</span> Replace with{' '}
-                    <span className="text-[#1B3A6B] font-medium">Supabase Auth</span> or NextAuth for production security.
-                  </p>
-                </div>
-
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div>
                     <label className="block text-gray-500 text-xs font-semibold uppercase tracking-wide mb-2">Admin Password</label>
                     <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
                       placeholder="Enter admin password" className="input-field" />
                   </div>
-                  {error && (
-                    <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-xs">
-                      {error}
-                    </motion.p>
+                  {loginError && (
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 text-xs">{loginError}</motion.p>
                   )}
                   <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                    className="btn-primary w-full py-4 text-base justify-center">
+                    className="btn-primary w-full py-4 text-base justify-center gap-2">
                     <Lock size={16} /> Sign In
                   </motion.button>
                 </form>
               </motion.div>
             </motion.div>
+
           ) : (
-            <motion.div key="dashboard" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-              className="py-12">
+
+            /* ── DASHBOARD ── */
+            <motion.div key="dashboard" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="py-12">
               <div className="max-w-7xl mx-auto px-4 sm:px-6">
+
+                {/* Header */}
                 <div className="flex items-center justify-between mb-10">
                   <div>
                     <p className="text-[#2D9944] text-sm font-semibold uppercase tracking-[0.2em] mb-1">Admin Dashboard</p>
                     <h1 className="text-3xl font-black text-[#0F1F3D]">KhelSetu Control Panel</h1>
                   </div>
-                  <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                    onClick={() => setLoggedIn(false)} className="btn-secondary text-sm px-5 py-2.5 flex items-center gap-2">
-                    <LogOut size={14} /> Sign Out
-                  </motion.button>
+                  <div className="flex items-center gap-3">
+                    <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                      onClick={fetchDonations} disabled={loading}
+                      className="btn-secondary text-sm px-4 py-2.5 flex items-center gap-2 disabled:opacity-50">
+                      <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                      Refresh
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                      onClick={() => setLoggedIn(false)} className="btn-secondary text-sm px-5 py-2.5 flex items-center gap-2">
+                      <LogOut size={14} /> Sign Out
+                    </motion.button>
+                  </div>
                 </div>
 
+                {/* Stats */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
                   {stats.map((s, i) => (
                     <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
@@ -104,132 +147,187 @@ export default function AdminPage() {
                   ))}
                 </div>
 
+                {/* Tabs */}
                 <div className="flex gap-2 mb-6">
-                  {(['overview', 'equipment'] as const).map(tab => (
+                  {(['donations', 'overview'] as const).map(tab => (
                     <button key={tab} onClick={() => setActiveTab(tab)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
                         activeTab === tab
                           ? 'bg-[#1B3A6B]/8 text-[#1B3A6B] border border-[#1B3A6B]/20'
                           : 'text-gray-500 hover:text-gray-800 bg-white border border-gray-200'
                       }`}>
-                      {tab === 'equipment' ? 'Equipment Listings' : 'Overview'}
+                      {tab === 'donations' ? `Donations (${donations.length})` : 'Overview'}
                     </button>
                   ))}
                 </div>
 
-                {activeTab === 'overview' && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid md:grid-cols-2 gap-6">
-                    <div className="glass-card p-6">
-                      <div className="flex items-center gap-3 mb-5">
-                        <BarChart3 size={20} className="text-[#1B3A6B]" />
-                        <h3 className="text-gray-800 font-bold">Quick Actions</h3>
-                      </div>
-                      <div className="space-y-3">
-                        {[
-                          { label: 'Review Pending Equipment', dot: 'bg-amber-500' },
-                          { label: 'Export Donor List (CSV)',   dot: 'bg-[#1B3A6B]' },
-                          { label: 'Send Drive Announcement',  dot: 'bg-[#2D9944]' },
-                          { label: 'Update Impact Stats',      dot: 'bg-violet-500' },
-                        ].map((a, i) => (
-                          <button key={i}
-                            className="w-full text-left px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-gray-500 text-sm hover:text-gray-800 hover:bg-gray-100 transition-all flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full ${a.dot}`} />
-                            {a.label}
-                          </button>
-                        ))}
-                      </div>
-                      <p className="text-gray-300 text-xs mt-4">📌 Connect to Supabase to enable real actions</p>
-                    </div>
-
-                    <div className="glass-card p-6">
-                      <div className="flex items-center gap-3 mb-5">
-                        <Eye size={20} className="text-[#2D9944]" />
-                        <h3 className="text-gray-800 font-bold">Recent Activity</h3>
-                      </div>
-                      <div className="space-y-4">
-                        {[
-                          { action: 'New donation listed',  who: 'Rahul M.',  time: '2h ago', dot: 'bg-[#1B3A6B]' },
-                          { action: 'Equipment approved',    who: 'Admin',     time: '3h ago', dot: 'bg-[#2D9944]' },
-                          { action: 'Drive completed',       who: 'Team Lead', time: '1d ago', dot: 'bg-violet-500' },
-                          { action: 'New donor registered', who: 'Sneha T.',  time: '2d ago', dot: 'bg-amber-500' },
-                        ].map((item, i) => (
-                          <div key={i} className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-2 h-2 rounded-full ${item.dot}`} />
-                              <div>
-                                <span className="text-gray-600">{item.action}</span>
-                                <span className="text-gray-400 ml-1.5">by {item.who}</span>
-                              </div>
-                            </div>
-                            <span className="text-gray-300 text-xs">{item.time}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <p className="text-gray-300 text-xs mt-4">📌 Real-time feed via Supabase Realtime</p>
-                    </div>
-                  </motion.div>
-                )}
-
-                {activeTab === 'equipment' && (
+                {/* Donations tab */}
+                {activeTab === 'donations' && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <div className="glass-card overflow-hidden">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-gray-100 bg-gray-50">
-                              <th className="text-left px-5 py-4 text-gray-400 text-xs uppercase tracking-wide">Item</th>
-                              <th className="text-left px-5 py-4 text-gray-400 text-xs uppercase tracking-wide">Sport</th>
-                              <th className="text-left px-5 py-4 text-gray-400 text-xs uppercase tracking-wide">Condition</th>
-                              <th className="text-left px-5 py-4 text-gray-400 text-xs uppercase tracking-wide">Location</th>
-                              <th className="text-left px-5 py-4 text-gray-400 text-xs uppercase tracking-wide">Status</th>
-                              <th className="text-right px-5 py-4 text-gray-400 text-xs uppercase tracking-wide">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {items.map((item, i) => (
-                              <motion.tr key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
-                                className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                                <td className="px-5 py-4 text-gray-700 font-medium max-w-[200px] truncate">{item.name}</td>
-                                <td className="px-5 py-4 text-gray-500">{item.sport}</td>
-                                <td className="px-5 py-4 text-gray-500">{item.condition}</td>
-                                <td className="px-5 py-4 text-gray-400 text-xs max-w-[140px] truncate">{item.location}</td>
-                                <td className="px-5 py-4">
-                                  <span className={`badge ${item.approved ? 'badge-available' : 'badge-reserved'}`}>
-                                    {item.approved ? 'Approved' : 'Pending'}
-                                  </span>
-                                </td>
-                                <td className="px-5 py-4">
-                                  <div className="flex justify-end">
-                                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                                      onClick={() => toggleApproval(item.id)}
-                                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                                        item.approved
-                                          ? 'bg-red-50 text-red-500 border-red-100 hover:bg-red-100'
-                                          : 'bg-[#F0FDF4] text-[#2D9944] border-[#2D9944]/20 hover:bg-[#DCFCE7]'
-                                      }`}>
-                                      {item.approved ? 'Revoke' : 'Approve'}
-                                    </motion.button>
-                                  </div>
-                                </td>
-                              </motion.tr>
-                            ))}
-                          </tbody>
-                        </table>
+
+                    {/* Fetch error */}
+                    {fetchError && (
+                      <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm flex items-center gap-2">
+                        <Shield size={14} /> {fetchError} — make sure you have a SELECT policy on the donations table.
                       </div>
-                    </div>
-                    <div className="mt-4 bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                      <p className="text-gray-400 text-xs text-center flex items-center justify-center gap-1.5">
-                        <Shield size={11} className="text-[#1B3A6B]" />
-                        Connect to Supabase to persist approval state. Use RLS for role-based access control.
-                      </p>
+                    )}
+
+                    <div className="grid lg:grid-cols-3 gap-6">
+
+                      {/* Table */}
+                      <div className="lg:col-span-2 glass-card overflow-hidden">
+                        {loading ? (
+                          <div className="py-20 text-center">
+                            <RefreshCw size={24} className="animate-spin text-[#1B3A6B] mx-auto mb-3" />
+                            <p className="text-gray-400 text-sm">Loading donations…</p>
+                          </div>
+                        ) : donations.length === 0 ? (
+                          <div className="py-20 text-center">
+                            <Package size={32} className="text-gray-200 mx-auto mb-3" />
+                            <p className="text-gray-400 text-sm">No donations yet.</p>
+                          </div>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-b border-gray-100 bg-gray-50">
+                                  <th className="text-left px-4 py-3 text-gray-400 text-xs uppercase tracking-wide">Donor</th>
+                                  <th className="text-left px-4 py-3 text-gray-400 text-xs uppercase tracking-wide">Equipment</th>
+                                  <th className="text-left px-4 py-3 text-gray-400 text-xs uppercase tracking-wide">Method</th>
+                                  <th className="text-left px-4 py-3 text-gray-400 text-xs uppercase tracking-wide">Date</th>
+                                  <th className="text-right px-4 py-3 text-gray-400 text-xs uppercase tracking-wide">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {donations.map((d, i) => (
+                                  <motion.tr key={d.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
+                                    onClick={() => setSelected(d)}
+                                    className={`border-b border-gray-50 cursor-pointer transition-colors ${
+                                      selected?.id === d.id ? 'bg-[#F0F6FF]' : 'hover:bg-gray-50'
+                                    }`}>
+                                    <td className="px-4 py-3">
+                                      <p className="text-gray-800 font-medium text-sm">{d.name}</p>
+                                      <p className="text-gray-400 text-xs">{d.phone}</p>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                      <p className="text-gray-700 text-sm">{d.equipment_type}</p>
+                                      <p className="text-gray-400 text-xs">{d.sport}</p>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                                        d.donation_method === 'school'
+                                          ? 'bg-[#F0F6FF] text-[#1B3A6B]'
+                                          : 'bg-[#F0FDF4] text-[#2D9944]'
+                                      }`}>
+                                        {d.donation_method === 'school' ? 'Drop Off' : 'Porter'}
+                                      </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-gray-400 text-xs">
+                                      {new Date(d.created_at).toLocaleDateString('en-IN')}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                      <div className="flex justify-end gap-2">
+                                        <button onClick={e => { e.stopPropagation(); setSelected(d); }}
+                                          className="p-1.5 rounded-lg bg-[#F0F6FF] text-[#1B3A6B] hover:bg-[#1B3A6B]/15 transition-colors">
+                                          <Eye size={13} />
+                                        </button>
+                                        <button onClick={e => { e.stopPropagation(); deleteDonation(d.id); }}
+                                          className="p-1.5 rounded-lg bg-red-50 text-red-400 hover:bg-red-100 transition-colors">
+                                          <Trash2 size={13} />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </motion.tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Detail panel */}
+                      <div className="glass-card p-6">
+                        {selected ? (
+                          <AnimatePresence mode="wait">
+                            <motion.div key={selected.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
+                              <div className="flex items-center justify-between mb-5">
+                                <h3 className="text-gray-800 font-bold">Submission Details</h3>
+                                <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-xs">✕ Close</button>
+                              </div>
+
+                              {selected.photo_url && (
+                                <div className="mb-4 rounded-xl overflow-hidden">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={selected.photo_url} alt="Equipment" className="w-full h-40 object-cover" />
+                                </div>
+                              )}
+
+                              <div className="space-y-3">
+                                <Row icon={<Users size={13} />}   label="Name"      value={selected.name} />
+                                <Row icon={<Phone size={13} />}   label="Phone"     value={selected.phone} />
+                                {selected.email && <Row icon={<Mail size={13} />} label="Email" value={selected.email} />}
+                                <Row icon={<Package size={13} />} label="Equipment" value={selected.equipment_type} />
+                                {selected.sport     && <Row icon={<Package size={13} />} label="Sport"     value={selected.sport} />}
+                                {selected.condition && <Row icon={<Package size={13} />} label="Condition"  value={selected.condition} />}
+                                <Row icon={<MapPin size={13} />}  label="Location"  value={selected.location} />
+                                <Row icon={<Package size={13} />} label="Method"
+                                  value={selected.donation_method === 'school' ? 'Drop Off at School' : 'Send via Porter'} />
+                                {selected.description && (
+                                  <div className="pt-2 border-t border-gray-100">
+                                    <p className="text-gray-400 text-xs mb-1">Notes</p>
+                                    <p className="text-gray-600 text-sm leading-relaxed">{selected.description}</p>
+                                  </div>
+                                )}
+                                {selected.photo_url && (
+                                  <a href={selected.photo_url} target="_blank" rel="noreferrer"
+                                    className="flex items-center gap-2 text-[#1B3A6B] text-xs hover:underline">
+                                    <ImageIcon size={12} /> View full photo
+                                  </a>
+                                )}
+                              </div>
+
+                              <button onClick={() => deleteDonation(selected.id)}
+                                className="mt-5 w-full py-2.5 rounded-xl text-sm font-medium text-red-500 bg-red-50 border border-red-100 hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
+                                <Trash2 size={14} /> Delete Submission
+                              </button>
+                            </motion.div>
+                          </AnimatePresence>
+                        ) : (
+                          <div className="h-full flex flex-col items-center justify-center text-center py-10">
+                            <Eye size={28} className="text-gray-200 mb-3" />
+                            <p className="text-gray-400 text-sm">Click a row to view full details</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 )}
+
+                {/* Overview tab */}
+                {activeTab === 'overview' && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card p-8 text-center">
+                    <Package size={32} className="text-gray-200 mx-auto mb-3" />
+                    <p className="text-gray-500 text-sm">Switch to the Donations tab to view all submissions.</p>
+                  </motion.div>
+                )}
+
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
     </PageTransition>
+  );
+}
+
+function Row({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <span className="text-gray-400 mt-0.5 flex-shrink-0">{icon}</span>
+      <div>
+        <p className="text-gray-400 text-xs">{label}</p>
+        <p className="text-gray-700 text-sm font-medium">{value}</p>
+      </div>
+    </div>
   );
 }
