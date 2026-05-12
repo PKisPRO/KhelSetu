@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Heart, Target, Eye, Zap, MapPin, Calendar } from 'lucide-react';
+import { ArrowRight, Heart, Target, Eye, Zap, MapPin } from 'lucide-react';
 import SectionHeading from '@/components/SectionHeading';
 import GlassCard from '@/components/GlassCard';
 import PageTransition from '@/components/PageTransition';
@@ -262,26 +262,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── SPORTS LEAGUE CALLOUT ───────────────────────────────── */}
-        <section className="py-16 bg-white">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="bg-amber-50 border border-amber-200 rounded-2xl p-7 flex flex-col sm:flex-row items-start gap-5">
-              <div className="w-12 h-12 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
-                <Calendar size={22} className="text-amber-600" />
-              </div>
-              <div>
-                <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-1">Awareness Initiative</p>
-                <h3 className="text-gray-800 font-bold text-lg mb-2">Charity Sports League — 22nd May</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  As part of our awareness efforts, we will also be organising a <strong>charity sports league on 22nd May</strong>.
-                  The league is designed to spread the word about the donation drive, bring the community together,
-                  and create excitement around KhelSetu&apos;s mission.
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </section>
 
         {/* ── VALUES ─────────────────────────────────────────────────── */}
         <section className="py-24 animated-gradient relative">
