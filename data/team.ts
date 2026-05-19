@@ -54,7 +54,7 @@ export const coreTeam = [
 
 export const logisticsTeam = [
   {
-    name:  'Karan Showkatramani',
+    name:  'Arsh Motwani',
     role:  'Logistics Head',
     image: '/images/logistics-karan.jpg',
     bio:   'Coordinates equipment pickups, deliveries, and storage across the city.',
