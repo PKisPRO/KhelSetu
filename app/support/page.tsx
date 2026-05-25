@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, AlertCircle, CheckCircle, Heart, ImageIcon, Package, Shield, Upload, Users, X, Zap } from 'lucide-react';
+import { ArrowRight, AlertCircle, CheckCircle, Heart, ImageIcon, Package, Upload, Users, X, Zap } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionHeading from '@/components/SectionHeading';
 import GlassCard from '@/components/GlassCard';
@@ -154,13 +154,6 @@ export default function SupportPage() {
                       <img src="/images/upi-qr.jpg" alt="KhelSetu UPI payment QR code" className="w-full max-w-xs mx-auto rounded-xl border border-gray-100" />
                       <p className="text-[#1B3A6B] font-semibold text-sm mt-4">Scan to support KhelSetu directly</p>
                       <p className="text-gray-400 text-xs mt-1">After payment, add your details and screenshot for verification.</p>
-                    </div>
-
-                    <div className="bg-[#F0F6FF] border border-[#1B3A6B]/10 rounded-xl p-4 flex items-start gap-3">
-                      <Shield size={16} className="text-[#1B3A6B] mt-0.5 flex-shrink-0" />
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        We are not using Razorpay right now. UPI donations are verified manually using your transaction ID and screenshot.
-                      </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
