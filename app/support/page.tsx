@@ -151,7 +151,7 @@ export default function SupportPage() {
 
                     <div className="bg-white border border-gray-200 rounded-2xl p-5 text-center">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/images/upi-qr.jpg" alt="KhelSetu UPI payment QR code" className="w-full max-w-xs mx-auto rounded-xl border border-gray-100" />
+                      <img src="/images/upi-qr.png" alt="KhelSetu UPI payment QR code" className="w-full max-w-xs mx-auto rounded-xl border border-gray-100" />
                       <p className="text-[#1B3A6B] font-semibold text-sm mt-4">Scan to support KhelSetu directly</p>
                       <p className="text-gray-400 text-xs mt-1">After payment, add your details and screenshot for verification.</p>
                     </div>
