@@ -1,14 +1,24 @@
 // Photos from KhelSetu's first donation drive (July 2026).
-// Curated from public/donationdriveimages — exact duplicate files and
-// unusable shots (blurred, backs to camera, empty frames) are excluded.
+// The 15 best shots curated from public/donationdriveimages — every photo
+// is a distinct moment (no duplicates or near-identical frames).
 // All images are landscape (1600x1200 or 1600x900).
 
 const selected = [
-  '001', '002', '004', '005', '006', '007', '008', '009', '010', '011',
-  '012', '013', '015', '018', '019', '020', '024', '034', '035', '038',
-  '039', '042', '043', '044', '048', '049', '050', '054', '055', '056',
-  '060', '061', '064', '065', '068', '069', '070', '076', '077', '080',
-  '081', '082', '086', '087', '092', '093', '096', '097', '102',
+  '004', // volunteers at the orphanage banner
+  '007', // big group, kids holding equipment
+  '009', // kids with ball, bats and rackets, candid
+  '015', // handing cricket bats, kids watching
+  '020', // small kid reaching for a bat
+  '042', // unpacking the equipment sack
+  '048', // small boy reaching for a racket
+  '060', // smiling boy receives a racket
+  '065', // two boys posing with a racket
+  '070', // volunteer teaching a boy the grip
+  '077', // keeper-gloves handover
+  '081', // strapping a helmet on a child
+  '092', // pink helmet fitting, kids holding rackets
+  '096', // smiling volunteer with helmeted child
+  '102', // volunteer posing with smiling helmeted child
 ];
 
 export const driveGalleryImages = selected.map(n => ({

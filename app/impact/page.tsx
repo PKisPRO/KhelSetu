@@ -105,7 +105,7 @@ export default function ImpactPage() {
               <SectionHeading eyebrow="" title="Moments from our " highlight="first drive" centered
                 description="Real photographs from collection day to the smiles at the orphanage. Click any photo to view it full size." />
             </div>
-            <ImpactGallery images={driveGalleryImages} />
+            <ImpactGallery images={driveGalleryImages} initialCount={15} />
           </div>
         </section>
 
