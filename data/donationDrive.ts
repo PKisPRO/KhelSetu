@@ -8,7 +8,6 @@ const selected = [
   '009', // kids with ball, bats and rackets, candid
   '015', // handing cricket bats, kids watching
   '020', // small kid reaching for a bat
-  '042', // unpacking the equipment sack
   '043', // volunteers handing out badminton rackets
   '044', // kid receiving a racket, lively group
   '048', // small boy reaching for a racket
