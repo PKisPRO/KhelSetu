@@ -178,22 +178,22 @@ export default function HomePage() {
                 <div className="inline-flex items-center gap-2 backdrop-blur-sm rounded-full px-3 py-1.5 mb-4"
                      style={{ background: 'rgba(61,187,90,0.2)', border: '1px solid rgba(61,187,90,0.35)' }}>
                   <span className="w-2 h-2 rounded-full bg-[#3DBB5A] ping-slow inline-block" />
-                  <span className="text-[#3DBB5A] text-xs font-semibold uppercase tracking-wide">Just Launched · Jaipur</span>
+                  <span className="text-[#3DBB5A] text-xs font-semibold uppercase tracking-wide">Drive #1 Complete · Jaipur</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">We&apos;re just getting started.</h3>
+                <h3 className="text-xl font-bold text-white mb-2">Our first drive is done.</h3>
                 <p className="text-white/65 text-sm leading-relaxed mb-4">
-                  Our first collection drive launches soon. Be one of the first to donate.
+                  170+ pieces of equipment delivered to 40+ children at our first partner orphanage home. Help us do it again.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="backdrop-blur-sm rounded-xl p-3 text-center"
                        style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                    <div className="text-xl font-black text-white mb-0.5">₹0</div>
-                    <div className="text-white/55 text-xs">Cost to recipients</div>
+                    <div className="text-xl font-black text-white mb-0.5">40+</div>
+                    <div className="text-white/55 text-xs">Children reached</div>
                   </div>
                   <div className="backdrop-blur-sm rounded-xl p-3 text-center"
                        style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                    <div className="text-xl font-black text-white mb-0.5">100%</div>
-                    <div className="text-white/55 text-xs">Equipment reused</div>
+                    <div className="text-xl font-black text-white mb-0.5">170+</div>
+                    <div className="text-white/55 text-xs">Equipment donated</div>
                   </div>
                 </div>
               </div>

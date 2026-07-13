@@ -41,12 +41,12 @@ export default function BrowsePage() {
                 <Package size={36} className="text-white" />
               </div>
 
-              <h2 className="text-2xl font-bold text-[#0F1F3D] mb-3">No Equipment Listed Yet</h2>
+              <h2 className="text-2xl font-bold text-[#0F1F3D] mb-3">No Equipment Available Right Now</h2>
               <p className="text-gray-500 text-base leading-relaxed mb-2 max-w-md mx-auto">
-                We are currently setting up our first collection drive in Jaipur.
+                Our first drive collected 170+ items — every one of them has already been delivered to children in Jaipur.
               </p>
               <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-md mx-auto">
-                As soon as donations come in and are verified, they will appear here — ready to reach children who need them most.
+                As new donations come in and are verified, they will appear here — ready to reach children who need them most.
               </p>
 
               {/* Divider */}

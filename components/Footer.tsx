@@ -135,8 +135,8 @@ export default function Footer() {
               </span>
             </div>
             <div className="p-4 rounded-xl border border-white/8 bg-white/4">
-              <p className="text-white/70 text-xs font-semibold mb-1">Student-Led · Just Launched</p>
-              <p className="text-white/35 text-xs leading-relaxed">First collection drive launching in Jaipur. Be an early donor.</p>
+              <p className="text-white/70 text-xs font-semibold mb-1">Student-Led · Drive #1 Complete</p>
+              <p className="text-white/35 text-xs leading-relaxed">170+ items delivered to 40+ children in Jaipur. Help fuel the next drive.</p>
             </div>
           </div>
         </div>

@@ -183,8 +183,8 @@ export default function AboutPage() {
                     We are a group of young people who believe that access to sport should not be determined by how much money a family has.
                   </p>
                   <p className="text-gray-600 leading-relaxed">
-                    We are just getting started. Our first collection drive is being organised right here in Jaipur,
-                    and we are building the systems, networks, and community needed to make this a lasting movement.
+                    Our first donation drive is already complete — 170+ pieces of equipment collected and delivered to 40+ children
+                    at our first partner orphanage home in Jaipur. Now we are building the systems, networks, and community needed to make this a lasting movement.
                   </p>
                   <p className="text-gray-500 leading-relaxed text-sm">
                     Every step we take is student-driven — the idea, the execution, the outreach, and the redistribution.
@@ -193,9 +193,9 @@ export default function AboutPage() {
 
                 <div className="mt-8 space-y-3">
                   {[
-                    { icon: MapPin,  label: 'Based in Jaipur, India',                sub: 'Our first drives will run across schools and institutions in Jaipur.' },
+                    { icon: MapPin,  label: 'Based in Jaipur, India',                sub: 'Our first drive is done, with more planned across schools and institutions in Jaipur.' },
                     { icon: null, emoji: '🎓', label: '100% Student-Led',             sub: 'Every role is handled by student volunteers.' },
-                    { icon: null, emoji: '🌱', label: 'Just Getting Started',          sub: 'Newly launched — building momentum one drive at a time.' },
+                    { icon: null, emoji: '🌱', label: 'Building Momentum',             sub: 'Drive #1 complete — 40+ children reached, and counting.' },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-3 bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
                       {item.icon ? (
@@ -253,7 +253,7 @@ export default function AboutPage() {
                     <div className="text-3xl font-black text-white mb-1">Jaipur</div>
                     <div className="text-white/70 text-xs uppercase tracking-wide">Rajasthan, India</div>
                     <div className="w-8 h-0.5 bg-white/30 mx-auto my-2" />
-                    <div className="text-white/60 text-xs">First collection drive<br />launching soon</div>
+                    <div className="text-white/60 text-xs">First collection drive<br />completed July 2026</div>
                   </div>
                 </div>
               </motion.div>
