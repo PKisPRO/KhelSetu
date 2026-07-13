@@ -4,7 +4,6 @@
 // All images are landscape (1600x1200 or 1600x900).
 
 const selected = [
-  '004', // volunteers at the orphanage banner
   '007', // big group, kids holding equipment
   '009', // kids with ball, bats and rackets, candid
   '015', // handing cricket bats, kids watching
