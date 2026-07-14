@@ -1,6 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Package, Sparkles, Heart, Users, Trophy, Zap, RotateCcw, ChevronDown } from 'lucide-react';
 import SectionHeading from '@/components/SectionHeading';
@@ -20,15 +21,43 @@ const reasons = [
   { icon: RotateCcw, title: 'Direct Impact',desc: 'Equipment goes straight from donor to child — no unnecessary middlemen or delays.' },
 ];
 
+const headlineWords = [
+  { text: 'Bridging', className: 'text-white' },
+  { text: 'the',      className: 'text-white' },
+  { text: 'Gap',      className: 'text-white' },
+  { text: 'Through',  className: 'gradient-text-light' },
+  { text: 'Sport',    className: 'gradient-text-light' },
+];
+
+const headlineContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.09, delayChildren: 0.2 } },
+};
+
+const headlineWord = {
+  hidden: { opacity: 0, y: 28, rotateX: 40 },
+  visible: {
+    opacity: 1, y: 0, rotateX: 0,
+    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
 export default function HomePage() {
+  const heroRef = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '18%']);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, reduced ? 1 : 1.12]);
+  const cueOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+
   return (
     <div className="overflow-hidden">
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[calc(100vh-80px)] flex items-center overflow-hidden">
+      <section ref={heroRef} className="relative min-h-[calc(100vh-80px)] flex items-center overflow-hidden">
 
-        {/* Full-bleed photo background */}
-        <div className="absolute inset-0">
+        {/* Full-bleed photo background with scroll parallax */}
+        <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/hero-football.jpg"
@@ -45,7 +74,7 @@ export default function HomePage() {
           <div className="absolute inset-0" style={{
             background: 'linear-gradient(to top, rgba(11,24,50,0.6) 0%, transparent 40%)'
           }} />
-        </div>
+        </motion.div>
 
         {/* Subtle grid overlay */}
         <div className="absolute inset-0 grid-pattern opacity-10" />
@@ -64,13 +93,20 @@ export default function HomePage() {
               <span className="text-white/90 text-sm font-medium">Student-led initiative · Jaipur, India</span>
             </motion.div>
 
-            {/* Headline */}
+            {/* Headline — word-by-word reveal */}
             <motion.h1
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              variants={headlineContainer} initial="hidden" animate="visible"
               className="hero-title text-white mb-5 leading-none"
+              style={{ perspective: 800 }}
             >
-              Bridging the Gap{' '}
-              <span className="gradient-text-light">Through Sport</span>
+              {headlineWords.map((w, i) => (
+                <motion.span key={i} variants={headlineWord}
+                  className={`inline-block will-change-transform ${w.className}`}
+                  style={{ transformOrigin: '50% 100%' }}
+                >
+                  {w.text}{i < headlineWords.length - 1 ? ' ' : ''}
+                </motion.span>
+              ))}
             </motion.h1>
 
             {/* Subtext */}
@@ -107,13 +143,16 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator — fades in on load, fades out as you scroll */}
+        <motion.div style={{ opacity: cueOpacity }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6, duration: 0.6 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40">
+          className="flex flex-col items-center gap-2 text-white/40">
           <span className="text-xs uppercase tracking-[0.2em]">Scroll</span>
           <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}>
             <ChevronDown size={20} />
           </motion.div>
+        </motion.div>
         </motion.div>
       </section>
 

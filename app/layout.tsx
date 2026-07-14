@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LoadingScreen from '@/components/LoadingScreen';
+import ScrollProgress from '@/components/ScrollProgress';
 
 const geist = Geist({
   subsets: ['latin'],
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col bg-white">
         <LoadingScreen />
+        <ScrollProgress />
         <Navbar />
         <main className="flex-1 pt-20">
           {children}

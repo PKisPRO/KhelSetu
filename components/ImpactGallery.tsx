@@ -13,6 +13,9 @@ interface ImpactGalleryProps {
 export default function ImpactGallery({ images, initialCount = 12 }: ImpactGalleryProps) {
   const [expanded, setExpanded] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  // The tile the lightbox was opened from — shared-element zoom only applies
+  // to this photo, so arrowing to others falls back to a plain crossfade.
+  const [origin, setOrigin] = useState<number | null>(null);
 
   const visible = expanded ? images : images.slice(0, initialCount);
 
@@ -44,11 +47,14 @@ export default function ImpactGallery({ images, initialCount = 12 }: ImpactGalle
         {visible.map((img, i) => (
           <motion.button
             key={img.src}
+            layoutId={`gallery-${img.src}`}
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-30px' }}
+            whileHover={{ y: -6, scale: 1.02, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
+            whileTap={{ scale: 0.97 }}
             transition={{ duration: 0.45, delay: (i % 8) * 0.05, ease: [0.22, 1, 0.36, 1] }}
-            onClick={() => setLightbox(i)}
+            onClick={() => { setOrigin(i); setLightbox(i); }}
             className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2D9944]"
             aria-label={`View photo ${i + 1} of ${images.length} full size`}
           >
@@ -95,8 +101,9 @@ export default function ImpactGallery({ images, initialCount = 12 }: ImpactGalle
 
             <motion.div
               key={lightbox}
+              layoutId={lightbox === origin ? `gallery-${images[lightbox].src}` : undefined}
               initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.25 }}
+              transition={{ layout: { type: 'spring', stiffness: 220, damping: 26 }, duration: 0.25 }}
               className="relative w-[92vw] h-[82vh]"
               onClick={e => e.stopPropagation()}
             >
