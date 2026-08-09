@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Users } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon } from '@/components/SocialIcons';
-import { founder, leadership, coreTeam, logisticsTeam } from '@/data/team';
+import { founder, leadership, coreTeam } from '@/data/team';
 import PageTransition from '@/components/PageTransition';
 import SectionHeading from '@/components/SectionHeading';
 import Link from 'next/link';
@@ -82,8 +82,6 @@ function RoleBadge({ role }: { role: string }) {
     'Co-Founder':        'bg-[#1B3A6B]/10 text-[#1B3A6B] border border-[#1B3A6B]/25',
     'Vice President':    'bg-[#2D9944]/10 text-[#2D9944] border border-[#2D9944]/25',
     'Outreach Head':     'bg-violet-50 text-violet-600 border border-violet-200',
-    'Operations Head':   'bg-amber-50 text-amber-600 border border-amber-200',
-    'Finance Head':      'bg-emerald-50 text-emerald-600 border border-emerald-200',
     'Logistics Head':    'bg-blue-50 text-blue-600 border border-blue-200',
   };
   return (
@@ -238,58 +236,27 @@ export default function TeamPage() {
             <div>
               <SectionLabel>Core Team</SectionLabel>
 
-              <div className="grid sm:grid-cols-3 gap-5">
+              <div className="grid sm:grid-cols-2 max-w-2xl mx-auto gap-6">
                 {coreTeam.map((member, i) => (
                   <motion.div
                     key={member.name}
-                    initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ y: -5, scale: 1.01 }}
-                    className="glass-card p-7 text-center"
+                    initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                    transition={{ duration: 0.55, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -6, scale: 1.01 }}
+                    className="glass-card p-8 text-center"
                   >
-                    <div className="relative inline-block mb-4">
-                      <div className="absolute inset-[-2px] rounded-full opacity-60"
-                           style={{ background: 'linear-gradient(135deg, #1B3A6B, #2D9944)' }} />
+                    <div className="relative inline-block mb-5">
+                      <div className="absolute inset-[-3px] rounded-full"
+                           style={{ background: 'linear-gradient(135deg, #1B3A6B, #2D9944)', padding: 3 }} />
                       <div className="relative rounded-full overflow-hidden border-2 border-white"
-                           style={{ width: 96, height: 96 }}>
-                        <TeamPhoto src={member.image} name={member.name} size="md" />
+                           style={{ width: 120, height: 120 }}>
+                        <TeamPhoto src={member.image} name={member.name} size="lg" />
                       </div>
                     </div>
 
-                    <h3 className="text-gray-800 font-bold mb-1">{member.name}</h3>
+                    <h3 className="text-xl font-bold text-[#0F1F3D] mb-1">{member.name}</h3>
                     <div className="mb-3"><RoleBadge role={member.role} /></div>
-                    <p className="text-gray-400 text-xs leading-relaxed">{member.bio}</p>
-                    <Socials socials={member.socials} />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── LOGISTICS TEAM ───────────────────────────── */}
-            <div>
-              <SectionLabel>Logistics Team</SectionLabel>
-
-              <div className="grid sm:grid-cols-2 max-w-2xl mx-auto gap-5">
-                {logisticsTeam.map((member, i) => (
-                  <motion.div
-                    key={member.name}
-                    initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ y: -5, scale: 1.01 }}
-                    className="glass-card p-7 text-center"
-                  >
-                    <div className="relative inline-block mb-4">
-                      <div className="absolute inset-[-2px] rounded-full opacity-60"
-                           style={{ background: 'linear-gradient(135deg, #1B3A6B, #2D9944)' }} />
-                      <div className="relative rounded-full overflow-hidden border-2 border-white"
-                           style={{ width: 96, height: 96 }}>
-                        <TeamPhoto src={member.image} name={member.name} size="md" />
-                      </div>
-                    </div>
-
-                    <h3 className="text-gray-800 font-bold mb-1">{member.name}</h3>
-                    <div className="mb-3"><RoleBadge role={member.role} /></div>
-                    <p className="text-gray-400 text-xs leading-relaxed">{member.bio}</p>
+                    <p className="text-gray-500 text-sm leading-relaxed">{member.bio}</p>
                     <Socials socials={member.socials} />
                   </motion.div>
                 ))}
