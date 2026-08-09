@@ -28,16 +28,6 @@ export const leadership = [
   },
 ];
 
-export const coreTeam = [
-  {
-    name:  'Arsh Motwani',
-    role:  'Logistics Head',
-    image: '/images/logistics-karan.jpg',
-    bio:   'Coordinates equipment pickups, deliveries, and storage across the city.',
-    socials: { instagram: 'https://instagram.com/khelsetu_', linkedin: 'https://www.linkedin.com/company/khelsetu-in', email: 'khelsetu177@gmail.com' },
-  },
-];
-
 // Legacy export kept for backwards compat
 export const founderData = {
   id: 'founder-1',
@@ -47,7 +37,7 @@ export const founderData = {
   image: founder.image,
   socials: founder.socials,
 };
-export const teamData = [...leadership, ...coreTeam].map((m, i) => ({
+export const teamData = leadership.map((m, i) => ({
   id: `member-${i + 1}`,
   name: m.name, role: m.role, bio: m.bio, image: m.image, socials: m.socials,
 }));

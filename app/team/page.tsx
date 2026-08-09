@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Users } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon } from '@/components/SocialIcons';
-import { founder, leadership, coreTeam } from '@/data/team';
+import { founder, leadership } from '@/data/team';
 import PageTransition from '@/components/PageTransition';
 import SectionHeading from '@/components/SectionHeading';
 import Link from 'next/link';
@@ -81,7 +81,6 @@ function RoleBadge({ role }: { role: string }) {
     'Founder':           'bg-[#1B3A6B] text-white',
     'Co-Founder':        'bg-[#1B3A6B]/10 text-[#1B3A6B] border border-[#1B3A6B]/25',
     'Vice President':    'bg-[#2D9944]/10 text-[#2D9944] border border-[#2D9944]/25',
-    'Logistics Head':    'bg-blue-50 text-blue-600 border border-blue-200',
   };
   return (
     <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide ${colours[role] ?? 'bg-gray-100 text-gray-500'}`}>
@@ -203,8 +202,8 @@ export default function TeamPage() {
             <div>
               <SectionLabel>Core Leadership</SectionLabel>
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...leadership, ...coreTeam].map((member, i) => (
+              <div className="grid sm:grid-cols-2 gap-6">
+                {leadership.map((member, i) => (
                   <motion.div
                     key={member.name}
                     initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
