@@ -30,13 +30,6 @@ export const leadership = [
 
 export const coreTeam = [
   {
-    name:  'Aaryaman Ojha',
-    role:  'Outreach Head',
-    image: '/images/outreach-aaryaman.jpg',
-    bio:   'Manages community outreach, school partnerships, and donor relations across Jaipur.',
-    socials: { instagram: 'https://instagram.com/khelsetu_', linkedin: 'https://www.linkedin.com/company/khelsetu-in', email: 'khelsetu177@gmail.com' },
-  },
-  {
     name:  'Arsh Motwani',
     role:  'Logistics Head',
     image: '/images/logistics-karan.jpg',
