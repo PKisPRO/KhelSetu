@@ -32,7 +32,7 @@ export const coreTeam = [
   {
     name:  'Manan Goyal',
     role:  'Logistics Head',
-    image: '/images/logistics-manan.jpg',
+    image: '/images/logistics-manan.jpeg',
     bio:   'Coordinates equipment pickups, deliveries, and storage across the city.',
     socials: { instagram: 'https://instagram.com/khelsetu_', linkedin: 'https://www.linkedin.com/company/khelsetu-in', email: 'khelsetu177@gmail.com' },
   },
